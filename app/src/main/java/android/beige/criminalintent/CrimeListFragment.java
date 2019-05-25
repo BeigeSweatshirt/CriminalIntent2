@@ -8,9 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class CrimeListFragment extends Fragment {
@@ -77,6 +81,7 @@ public class CrimeListFragment extends Fragment {
         Crime mCrime;
         private TextView mTitleTextView;
         private TextView mDateTextView;
+        private ImageView mSolvedImageView;
 
         CrimeHolder(LayoutInflater inflater, ViewGroup parent, int layout) {
             super(inflater.inflate(layout, parent, false));
@@ -84,12 +89,19 @@ public class CrimeListFragment extends Fragment {
 
             mTitleTextView = itemView.findViewById(R.id.crime_title);
             mDateTextView = itemView.findViewById(R.id.crime_date);
+            mSolvedImageView = itemView.findViewById(R.id.crime_solved);
         }
 
         public void bind(Crime crime) {
             mCrime = crime;
+            Date date = mCrime.getDate();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE', 'dd', " +
+                    "'MMM', 'yyyy");
+            String stringDate = dateFormat.format(date);
+
             mTitleTextView.setText(mCrime.getTitle());
-            mDateTextView.setText(mCrime.getDate().toString());
+            mDateTextView.setText(stringDate);
+            mSolvedImageView.setVisibility(crime.isSolved() ? View.VISIBLE : View.GONE);
         }
 
         @Override
@@ -119,6 +131,7 @@ public class CrimeListFragment extends Fragment {
             super.bind(crime);
 
             mContactPoliceButton = itemView.findViewById(R.id.contact_police_button);
+            mContactPoliceButton.setVisibility(crime.isSolved() ? View.VISIBLE : View.GONE);
             mContactPoliceButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
