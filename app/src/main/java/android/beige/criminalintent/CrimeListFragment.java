@@ -1,5 +1,7 @@
 package android.beige.criminalintent;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,15 +14,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
 public class CrimeListFragment extends Fragment {
-    private static final int IS_BENIGN_CRIME = 0;
-    private static final int IS_SERIOUS_CRIME = 1;
+    private static final int IS_CRIME_BENIGN = 0;
+    private static final int IS_CRIME_SERIOUS = 1;
     private RecyclerView mCrimeRecyclerView;
+    private static CrimeAdapter mAdapter;
+    private int mLastUpdatePosition = -1;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -32,12 +35,27 @@ public class CrimeListFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateUI();
+    }
+
     private void updateUI() {
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
-        CrimeAdapter mAdapter = new CrimeAdapter(crimes);
 
-        mCrimeRecyclerView.setAdapter(mAdapter);
+        if (mAdapter == null) {
+            mAdapter = new CrimeAdapter(crimes);
+            mCrimeRecyclerView.setAdapter(mAdapter);
+        } else {
+            if (mLastUpdatePosition > -1) {
+                mAdapter.notifyItemChanged(mLastUpdatePosition);
+                mLastUpdatePosition = -1;
+            } else {
+                mAdapter.notifyDataSetChanged();
+            }
+        }
     }
 
     private class CrimeAdapter extends RecyclerView.Adapter<CrimeHolder> {
@@ -51,7 +69,7 @@ public class CrimeListFragment extends Fragment {
         public CrimeHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
 
-            if (viewType == IS_BENIGN_CRIME) return new CrimeHolderBenign(layoutInflater, parent);
+            if (viewType == IS_CRIME_BENIGN) return new CrimeHolderBenign(layoutInflater, parent);
             else return new CrimeHolderSerious(layoutInflater, parent);
         }
 
@@ -70,8 +88,8 @@ public class CrimeListFragment extends Fragment {
         public int getItemViewType(int position) {
             int viewType;
 
-            if (!mCrimes.get(position).isPoliceRequired()) viewType = IS_BENIGN_CRIME;
-            else viewType = IS_SERIOUS_CRIME;
+            if (!mCrimes.get(position).isPoliceRequired()) viewType = IS_CRIME_BENIGN;
+            else viewType = IS_CRIME_SERIOUS;
             return viewType;
         }
     }
@@ -106,14 +124,15 @@ public class CrimeListFragment extends Fragment {
 
         @Override
         public void onClick(View view) {
-            Toast.makeText(getActivity(),
-                    mCrime.getTitle() + " clicked!", Toast.LENGTH_SHORT).show();
+            Intent intent = CrimeActivity.newIntent(getActivity(), mCrime.getId());
+            mLastUpdatePosition = this.getAdapterPosition();
+            startActivity(intent);
         }
     }
 
     private class CrimeHolderBenign extends CrimeHolder {
 
-        CrimeHolderBenign (LayoutInflater inflater, ViewGroup parent) {
+        CrimeHolderBenign(LayoutInflater inflater, ViewGroup parent) {
             super(inflater, parent, R.layout.list_item_crime);
         }
     }
