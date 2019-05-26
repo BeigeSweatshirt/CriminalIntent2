@@ -7,6 +7,9 @@
     <string name="crime_date_label">Date</string>
     <string name="crime_police_label">Contact Police</string>
     <string name="crime_police_toast">Police Contacted for </string>
+    <string name="crime_first">First</string>
+    <string name="crime_last">Last</string>
+    <string name="date_picker_title">Date of crime:</string>
 </resources>
 
 

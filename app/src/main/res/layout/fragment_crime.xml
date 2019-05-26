@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="16dp"
+    android:padding="16dp"
     android:orientation="vertical">
 
     <TextView
@@ -15,7 +15,8 @@
         android:id="@+id/crime_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/crime_title_hint" />
+        android:hint="@string/crime_title_hint"
+        android:inputType="textUri" />
 
     <TextView
         style="?android:listSeparatorTextViewStyle"
@@ -33,5 +34,4 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/crime_solved_label" />
-
 </LinearLayout>
