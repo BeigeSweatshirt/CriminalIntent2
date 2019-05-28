@@ -1,18 +1,19 @@
 package android.beige.criminalintent;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
 class Crime {
     private UUID mId;
     private String mTitle;
-    private Date mDate;
+    private Calendar mDate;
     private boolean mSolved;
     private boolean mRequiresPolice;
 
     Crime() {
         mId = UUID.randomUUID();
-        mDate = new Date();
+        mDate = Calendar.getInstance();
     }
 
     UUID getId() {
@@ -23,31 +24,31 @@ class Crime {
         return mTitle;
     }
 
-    Date getDate() {
-        return mDate;
-    }
-
-    boolean isSolved() {
-        return mSolved;
-    }
-
     void setTitle(String title) {
         mTitle = title;
     }
 
-    void setDate(Date date) {
+    Calendar getDate() {
+        return mDate;
+    }
+
+    void setDate(Calendar date) {
         mDate = date;
     }
 
-    void setSolved(boolean solved) {
+    boolean getIsSolved() {
+        return mSolved;
+    }
+
+    void setIsSolved(boolean solved) {
         mSolved = solved;
     }
 
-    boolean isPoliceRequired() {
+    boolean getIsPoliceRequired() {
         return mRequiresPolice;
     }
 
-    void setRequiresPolice(boolean requiresPolice) {
+    void setIsRequiresPolice(boolean requiresPolice) {
         mRequiresPolice = requiresPolice;
     }
 }

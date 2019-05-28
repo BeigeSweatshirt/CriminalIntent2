@@ -1,8 +1,10 @@
 package android.beige.criminalintent;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -13,11 +15,20 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
+import java.util.Calendar;
 import java.util.UUID;
 
 public class CrimeFragment extends Fragment {
     private static final String ARG_CRIME_ID = "crime_id";
+    private static final String DIALOG_DATE = "DialogDate";
+    private static final String DIALOG_TIME = "DialogTime";
+    private static final int REQUEST_DATE = 0;
+    private static final int REQUEST_TIME = 1;
     private Crime mCrime;
+    private EditText mTitleField;
+    private Button mDateButton;
+    private Button mTimeButton;
+    private CheckBox mSolvedCheckBox;
 
     static CrimeFragment newInstance(UUID crimeId) {
         Bundle args = new Bundle();
@@ -40,7 +51,7 @@ public class CrimeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_crime, container, false);
 
-        EditText mTitleField = v.findViewById(R.id.crime_title);
+        mTitleField = v.findViewById(R.id.crime_title);
         mTitleField.setText(mCrime.getTitle());
         mTitleField.addTextChangedListener(new TextWatcher() {
             @Override
@@ -57,18 +68,68 @@ public class CrimeFragment extends Fragment {
             }
         });
 
-        Button mDateButton = v.findViewById(R.id.crime_date);
-        mDateButton.setText(mCrime.getDate().toString());
-        mDateButton.setEnabled(false);
+        mDateButton = v.findViewById(R.id.crime_date);
+        updateDateButton();
+        mDateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager manager = getFragmentManager();
+                DatePickerFragment dateFragment = DatePickerFragment
+                        .newInstance(mCrime.getDate());
+                dateFragment.setTargetFragment(CrimeFragment.this, REQUEST_DATE);
+                dateFragment.show(manager, DIALOG_DATE);
+            }
+        });
 
-        CheckBox mSolvedCheckBox = v.findViewById(R.id.crime_solved);
-        mSolvedCheckBox.setChecked(mCrime.isSolved());
+        mTimeButton = v.findViewById(R.id.crime_time);
+        updateTimeButton();
+        mTimeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager manager = getFragmentManager();
+                TimePickerFragment timeFragment = TimePickerFragment
+                        .newInstance(mCrime.getDate());
+                timeFragment.setTargetFragment(CrimeFragment.this, REQUEST_TIME);
+                timeFragment.show(manager, DIALOG_TIME);
+            }
+        });
+
+        mSolvedCheckBox = v.findViewById(R.id.crime_solved);
+        mSolvedCheckBox.setChecked(mCrime.getIsSolved());
         mSolvedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mCrime.setSolved(isChecked);
+                mCrime.setIsSolved(isChecked);
             }
         });
         return v;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
+
+        boolean wasDateSet = requestCode == REQUEST_DATE;
+        Calendar date;
+
+        if (wasDateSet) date = (Calendar) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
+        else date = (Calendar) data.getSerializableExtra(TimePickerFragment.EXTRA_TIME);
+        mCrime.setDate(date);
+        if (wasDateSet) updateDateButton();
+        else updateTimeButton();
+    }
+
+    private void updateDateButton() {
+        String date = android.text.format.DateFormat
+                .format("EEEE, MMM dd, yyyy", mCrime.getDate()).toString();
+        mDateButton.setText(date);
+    }
+
+    private void updateTimeButton() {
+        String time = android.text.format.DateFormat
+                .format("hh:mm a", mCrime.getDate()).toString();
+        mTimeButton.setText(time);
     }
 }

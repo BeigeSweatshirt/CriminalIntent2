@@ -87,7 +87,7 @@ public class CrimeListFragment extends Fragment {
         public int getItemViewType(int position) {
             int viewType;
 
-            if (!mCrimes.get(position).isPoliceRequired()) viewType = IS_CRIME_BENIGN;
+            if (!mCrimes.get(position).getIsPoliceRequired()) viewType = IS_CRIME_BENIGN;
             else viewType = IS_CRIME_SERIOUS;
             return viewType;
         }
@@ -111,14 +111,14 @@ public class CrimeListFragment extends Fragment {
 
         public void bind(Crime crime) {
             mCrime = crime;
-            Date date = mCrime.getDate();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE', 'dd', " +
-                    "'MMM', 'yyyy");
-            String stringDate = dateFormat.format(date);
-
+            String date;
             mTitleTextView.setText(mCrime.getTitle());
-            mDateTextView.setText(stringDate);
-            mSolvedImageView.setVisibility(crime.isSolved() ? View.VISIBLE : View.GONE);
+
+            date = android.text.format.DateFormat
+                    .format("dd/MM/yyyy 'at' hh:mm a", mCrime.getDate()).toString();
+            mDateTextView.setText(date);
+
+            mSolvedImageView.setVisibility(crime.getIsSolved() ? View.VISIBLE : View.GONE);
         }
 
         @Override
@@ -149,7 +149,11 @@ public class CrimeListFragment extends Fragment {
             super.bind(crime);
 
             mContactPoliceButton = itemView.findViewById(R.id.contact_police_button);
-            mContactPoliceButton.setVisibility(crime.isSolved() ? View.VISIBLE : View.GONE);
+            if (crime.getIsSolved()) {
+                mContactPoliceButton.setVisibility(View.GONE);
+            } else {
+                mContactPoliceButton.setVisibility(View.VISIBLE);
+            }
             mContactPoliceButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
